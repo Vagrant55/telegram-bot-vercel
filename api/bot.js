@@ -72,7 +72,7 @@ export default async function handler(req, res) {
 
 // Отправить ВСЕМ
 async function sendToAll(text) {
-  const SHEET_URL = "https://docs.google.com/spreadsheets/d/ВАШ_SPREADSHEET_ID/export?format=csv";
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/1utCG8rmf449THR5g6SHvSK4pp6-nj7UEgSgP4H1_isc/export?format=csv";
   let sent = 0, failed = 0;
 
   try {
