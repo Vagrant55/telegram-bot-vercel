@@ -1,18 +1,11 @@
-import fetch from 'node-fetch';
-
 export default async function handler(req, res) {
-  // Разрешаем только POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Получаем тело запроса
-  const body = req.body;
-  if (!body || !body.message) {
-    return res.status(200).json({ ok: true });
-  }
+  const { message } = req.body;
+  if (!message || !message.text) return res.status(200).json({ ok: true });
 
-  const { message } = body;
   const chatId = message.chat.id;
   const text = message.text;
   const firstName = message.from.first_name || "Аноним";
@@ -24,7 +17,7 @@ export default async function handler(req, res) {
   const sendText = async (toChatId, msg) => {
     const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${toChatId}&text=${encodeURIComponent(msg)}`;
     try {
-      await fetch(url, { method: 'GET' });
+      await fetch(url);
     } catch (error) {
       console.error("Ошибка отправки:", error);
     }
