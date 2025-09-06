@@ -102,7 +102,7 @@ async function sendToAll(text) {
 
 // Отправить по типу
 async function sendToType(text, type) {
-  const SHEET_URL = "https://docs.google.com/spreadsheets/d/ВАШ_SPREADSHEET_ID/export?format=csv";
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/1utCG8rmf449THR5g6SHvSK4pp6-nj7UEgSgP4H1_isc/export?format=csv";
   let sent = 0, failed = 0;
 
   try {
