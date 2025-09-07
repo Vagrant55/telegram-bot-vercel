@@ -13,15 +13,15 @@ export default async function handler(req, res) {
   // Сервисный аккаунт (вставьте содержимое вашего JSON-файла)
   const SERVICE_ACCOUNT = {
     "type": "service_account",
-    "project_id": "ваш-project-id",
-    "private_key_id": "ваш-private-key-id",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDB5ghtHC2zjWYO\n-----END PRIVATE KEY-----\n",
-    "client_email": "ваш-email@project-id.iam.gserviceaccount.com",
-    "client_id": "ваш-client-id",
+    "project_id": "kaf-471314",
+    "private_key_id": "3c299aa0f6f13fede6e9e2784f593b11fba691e8",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDB5ghtHC2zjWYO\n/w9Y/dbmZVlkzVAEGQFLxNJxFfJuNiqewnou5AyTbTV6i9dMySJMMXqv3aC4YhAc\nlDikJPuQYiCNp4uXKmrd7G6YaR+tf82y+LCR1/ClDKplVxRGJQkhx2C8VOngr2WU\nrhu7LOiQJD2GPcEHkVqBo+mmoY/grPrRxihdUVfCmHuk8TOtX4hozmt1tXl4+5L5\nlTrTaxmKyg0/TXr8Pw0ZgMMioSF2e43u33OgK36gRNsTMBJ7ZHwDQn6fA4R4C51c\n56UfcpK8VI6GKSeuXsay20smM3DTsXb6/r3c8bh92sqlufhT0data5+AIlVPow+F\nppWhHaFTAgMBAAECggEAC6y4ESnDLq5y2LBO0kLmb5TmnwUlrjl7NH6zVQ/HOw+T\n3V9EUBJ3F2FZ+Pj2i68Im6HXC0PC65cr9SyPhIKdiwH9h8nww7dQG/CicBbUS3QI\nhKAosX9ZA/cRQ2zM0bRlKl2A25YZRugIq70X+lsn3ZXxBmYtezErS+b8qIXNze9B\nVUxAmOC0ggBy3YO8ZU8sB5dse3KnPSaBSt3FCKsiUMNXEfbDVq221Rf0nXh+8rR2\n7/MnQEIItx6bz9oaaK7smNDN8OQMDbsjJRin9pctgCA2NF2W4qiCYWRMJOdf387t\nF5DQf8WROdv2xsvhj+UOAOIMw4RcjxFB2IizMNAdMQKBgQD9d+Jk8/ZzTrhtKdwC\nJJZ+K352skngHq4SGv/GhhcZMhIk0UORlGJocvdM23mDwBaC4nCmnYsM7+PXWood\n4yd0K5KmZfFUMBLer4Ydorh+YX79VBOXcyXfZZT7t5ZDnOdnC9L3zrMr8feYmiml\njn4dFoYdP5DjhvFkpNx6WjcjpwKBgQDD1dRUZou4CB6KZWAQ5hrTkITCn2fKq82r\nVstv/ejDPX4t5GIO8K57ufLW2bO4fkAWT2D4IEGpiX9Q5MTy/JRmcsdpC6ijpQ5b\nRbjpwhHqXEe6KOKeniHevqI0XaXRysi00RMd3Aaw6gKN3CloMcJo41EYiGCnJiCL\nwFDvtkW6dQKBgBiBPqID9A+xzKLBKUQLxYDtM4zGL947GRknAxNuY01MSfTFRoMM\nlXcDpmUH0vep2oNM4Rc6o/bcOmrXlgLNs0LH86WitXIuM6TT02OKF8wgIObc+gfq\nWf7/EyhC14Qx5y1PN1Y95ZSaEBXw0ZXv8MFfLBgnzRoyMaRJTAeIMUyBAoGBAJ+M\nCRXOCcygCMm198MsxPRSTGcHWZcby07pQor2MPlHkxIue9kyKuUwRHDYInyPlwTW\nHOlp1jUaiThNeUuBjiG9J0skrXrNUVn4/sKrUs896U34W1DhAjUn2JyTIzI9ZLEz\nmMB97pGZxQTwNmfmCj5L3FkBWsUy4dcZkpcJR9u1AoGAaR9gr+bomHvJwl2BjEcT\nFZypxg6CV7vCPxRtFQBPEbNH5RIjdNLISIM6k4Dj9h/TXuRaLynFKA1pJSfDfSe3\nfg/zSPuZHBuBF0qyUBFliQfLZP2jCL+ToxErlMZx4gthz6ani72J73Rl1VDMyDS2\np7cFx/YUQXA672LNzFSsN0I=\n-----END PRIVATE KEY-----\n",
+    "client_email": "telegram-bot-service-account@kaf-471314.iam.gserviceaccount.com",
+    "client_id": "102899225308073479135",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ваш-email%40project-id.iam.gserviceaccount.com"
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs"
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/telegram-bot-service-account%40kaf-471314.iam.gserviceaccount.com"
   };
 
   // Функция отправки сообщения
