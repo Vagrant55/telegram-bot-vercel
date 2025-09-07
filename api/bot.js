@@ -6,16 +6,16 @@ export default async function handler(req, res) {
   }
 
   const { message, callback_query } = req.body;
-  const TOKEN = "7991590846:AAHp6H7VW_dPhH3tf_zAjTj8aQSCYZcm6iU";
+  const TOKEN = "8391873182:AAHUykid30Fssju6OfnUtwv6uCc9ZFdazh";
   const ADMIN_CHAT_IDS = [935264202, 123456789]; // ← ДОБАВЬТЕ СЮДА chat_id ДРУГИХ АДМИНОВ
-  const SPREADSHEET_ID = "ВАШ_SPREADSHEET_ID"; // ← ЗАМЕНИТЕ!
+  const SPREADSHEET_ID = "1utCG8rmf449THR5g6SHvSK4pp6-nj7UEgSgP4H1_isc"; // ← ЗАМЕНИТЕ!
 
   // Сервисный аккаунт (вставьте содержимое вашего JSON-файла)
   const SERVICE_ACCOUNT = {
     "type": "service_account",
     "project_id": "ваш-project-id",
     "private_key_id": "ваш-private-key-id",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nваш-ключ\n-----END PRIVATE KEY-----\n",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDB5ghtHC2zjWYO\n-----END PRIVATE KEY-----\n",
     "client_email": "ваш-email@project-id.iam.gserviceaccount.com",
     "client_id": "ваш-client-id",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
