@@ -1,4 +1,4 @@
-const { google } = require('googleapis');
+import { google } from 'googleapis';
 // 🧠 Простой in-memory кэш для хранения состояния админов
 const adminState = new Map();
 
