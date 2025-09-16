@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   // 🔑 Настройки — замените на свои
   const TOKEN = "8391873182:AAHUykid30Fssju6OfnUtwv6uCc9ZFdazh";
   const ADMIN_CHAT_IDS = [935264202]; // ← Добавьте chat_id админов
-  const SPREADSHEET_ID = "1utCG8rmf449THR5g6SHvSK4pp6-nj7UEgSgP4H1_isc";
+  const SPREADSHEET_ID = "1O-UibvEGDG_JFVF2FLC49YiAjlzIMduFSBZ7hNRQwmcrdo6JufnXi8ys";
 
   // 🧑‍💼 Сервисный аккаунт Google
   const SERVICE_ACCOUNT = {
