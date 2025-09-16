@@ -16,18 +16,18 @@ export default async function handler(req, res) {
 
   // 🧑‍💼 Сервисный аккаунт Google
   const SERVICE_ACCOUNT = {
-    "type": "service_account",
-    "project_id": "kaf-471314",
-    "private_key_id": "99c0a4247c816ee5568a2f87cb0fad89220c583c",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDvA+FXKwKxncK0\naLmzGZQUiq+ewWRLENH9EL+4nValg+hNjpnll0g4tMmrYb5OT7ePI6APQ2DF36yD\nPqg3xksFRYPeupOEvX8jhUwy44jhw7tY38f86QYhQ8S802JnNKwt/5JrMwnhWHgo\nNZPUauFYz/YMEW4tTVMvnPQIKBVtiEN6WnyJH9CzgnvsCE2b6RAqWg0Bz9zKizWF\n3worroomd10ed/j0+pbIuT8yanjqZJki5zzBt73c/ANGHwz9Ee6DWcEP5EyXyFGB\ngACBq1FrBeH13R8oktwBMksbswTEr89fxjRlGG8i3tz8RuN11O7uvD+6LANWLoo2\niiPI6mtrAgMBAAECggEAK2ezfO55I0NIkBWyn4VGIILdCMILEhzAXao0fvTHvvAY\n+Dis1wZlnbKrKv3pnvQYHBz2nL76LIUFoaH3z4Upq4/ntkOAtarqE0vKPjWW7pTq\niWW+Pj4dGF5jtHzY0nA80m+mqeQPZ8Z2r6qnKXytZsEBaEikDwMLV8qzgGWzGnw6\nFFVBQVNyc7fMU9Jabmbd1yyWwA3hlb2e2as/b42QyUA/g/pD1xDK8a2y+8GqQnuC\ncjth1EhS0H6JouyJ8u+Ynb6LPZrSVzA85tu87iqU+wbRKFQi2H8tdamO0B7Bo/cj\nZCrwgv+6Ccx9jINmJvEgWypbwpy99tuZWShqqXlC/QKBgQD8Z9LbZhvZ/mV9YoVt\nKUMtaduhr5G/p8X3YyAsGMxBDgIliPTRGgCc0GkmlOqtHv4WpHlodhEkbcMPztS5\ne36+ra8q+WSSTEcfXXCvO8tTFN3wMigxRxFxuo3COyYcoECWu8o/HrQVcNajuKZ2\n9YHyOHzXFMsQ0rdPbDNMcFOxxwKBgQDyaz17oe4ljW7RI1BYNZ42Vqfp1uFsuEVE\nhJeLjir4jkGOLZILYUKHc7DHlqJk9pumxp6yzRKQ8SU5QXKCaLVi71A+u6aLImBF\n5Ue7UZu9TI5kXbYWRgrSP1m5SsaJdjWGJ9fvmQGhQiBULEdei3XWaEJK7kPSPx3f\nhLS8Wn55PQKBgQC/5aeYCp+uMw2yME9E2RQr2MmUucjTr5iBJyn0nL3dz+qt4txO\nhbhlgMYRATMSf/ep+04ar3kE+zZMNHHiuxN3oNEGmSlvWPLR09ayQ4GoHrtFvLx2\nCpQmpTDVtOaa6PNyJj/zkUJU8r8dJmvZEXrET1IKq9JfbfTUO20c9mGLTQKBgQC7\nn1qXrI2oDN3/CejuTJlmDw2ow4H3ZmteC41LGr6RX3DHfOey3RTjxxvEbgbEQ8XW\nf5VmZ6f9/FXGCax52FbC+tvNoejVeMawcjNhfFkgWvc+IPWEKbPIY/WqnoAo9g+Z\nBI9xRqfnSknBPAAE4cVTK6BbZCujtuwFCi3kNdn7NQKBgQC8NXq4OLTbJx5WVitk\n5T/BvTsQ6BEuRnWjPod7yzkpFlxnO74WgVjONDusvgEi1B69oGwB6QS0WipmOHim\nJbjxFE5enpb7lSdK0yAJF6O9QZ+JARkKYYnTJ0EabIiBzf03yHOMXHtRjyFMZyt+\nkNApPNjtnhxd7FvQzmcnbv/Sfg==\n-----END PRIVATE KEY-----\n",
-    "client_email": "kaf-471314@appspot.gserviceaccount.com",
-    "client_id": "102306985385816454633",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kaf-471314%40appspot.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-  };
+  "type": "service_account",
+  "project_id": "kaf-471314",
+  "private_key_id": "99c0a4247c816ee5568a2f87cb0fad89220c583c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDvA+FXKwKxncK0\naLmzGZQUiq+ewWRLENH9EL+4nValg+hNjpnll0g4tMmrYb5OT7ePI6APQ2DF36yD\nPqg3xksFRYPeupOEvX8jhUwy44jhw7tY38f86QYhQ8S802JnNKwt/5JrMwnhWHgo\nNZPUauFYz/YMEW4tTVMvnPQIKBVtiEN6WnyJH9CzgnvsCE2b6RAqWg0Bz9zKizWF\n3worroomd10ed/j0+pbIuT8yanjqZJki5zzBt73c/ANGHwz9Ee6DWcEP5EyXyFGB\ngACBq1FrBeH13R8oktwBMksbswTEr89fxjRlGG8i3tz8RuN11O7uvD+6LANWLoo2\niiPI6mtrAgMBAAECggEAK2ezfO55I0NIkBWyn4VGIILdCMILEhzAXao0fvTHvvAY\n+Dis1wZlnbKrKv3pnvQYHBz2nL76LIUFoaH3z4Upq4/ntkOAtarqE0vKPjWW7pTq\niWW+Pj4dGF5jtHzY0nA80m+mqeQPZ8Z2r6qnKXytZsEBaEikDwMLV8qzgGWzGnw6\nFFVBQVNyc7fMU9Jabmbd1yyWwA3hlb2e2as/b42QyUA/g/pD1xDK8a2y+8GqQnuC\ncjth1EhS0H6JouyJ8u+Ynb6LPZrSVzA85tu87iqU+wbRKFQi2H8tdamO0B7Bo/cj\nZCrwgv+6Ccx9jINmJvEgWypbwpy99tuZWShqqXlC/QKBgQD8Z9LbZhvZ/mV9YoVt\nKUMtaduhr5G/p8X3YyAsGMxBDgIliPTRGgCc0GkmlOqtHv4WpHlodhEkbcMPztS5\ne36+ra8q+WSSTEcfXXCvO8tTFN3wMigxRxFxuo3COyYcoECWu8o/HrQVcNajuKZ2\n9YHyOHzXFMsQ0rdPbDNMcFOxxwKBgQDyaz17oe4ljW7RI1BYNZ42Vqfp1uFsuEVE\nhJeLjir4jkGOLZILYUKHc7DHlqJk9pumxp6yzRKQ8SU5QXKCaLVi71A+u6aLImBF\n5Ue7UZu9TI5kXbYWRgrSP1m5SsaJdjWGJ9fvmQGhQiBULEdei3XWaEJK7kPSPx3f\nhLS8Wn55PQKBgQC/5aeYCp+uMw2yME9E2RQr2MmUucjTr5iBJyn0nL3dz+qt4txO\nhbhlgMYRATMSf/ep+04ar3kE+zZMNHHiuxN3oNEGmSlvWPLR09ayQ4GoHrtFvLx2\nCpQmpTDVtOaa6PNyJj/zkUJU8r8dJmvZEXrET1IKq9JfbfTUO20c9mGLTQKBgQC7\nn1qXrI2oDN3/CejuTJlmDw2ow4H3ZmteC41LGr6RX3DHfOey3RTjxxvEbgbEQ8XW\nf5VmZ6f9/FXGCax52FbC+tvNoejVeMawcjNhfFkgWvc+IPWEKbPIY/WqnoAo9g+Z\nBI9xRqfnSknBPAAE4cVTK6BbZCujtuwFCi3kNdn7NQKBgQC8NXq4OLTbJx5WVitk\n5T/BvTsQ6BEuRnWjPod7yzkpFlxnO74WgVjONDusvgEi1B69oGwB6QS0WipmOHim\nJbjxFE5enpb7lSdK0yAJF6O9QZ+JARkKYYnTJ0EabIiBzf03yHOMXHtRjyFMZyt+\nkNApPNjtnhxd7FvQzmcnbv/Sfg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "kaf-471314@appspot.gserviceaccount.com",
+  "client_id": "102306985385816454633",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kaf-471314%40appspot.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+};
 
   // 📤 Функция отправки сообщения
   const sendText = async (toChatId, msg, replyMarkup = null) => {
