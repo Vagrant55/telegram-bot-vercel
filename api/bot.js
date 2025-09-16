@@ -20,6 +20,7 @@ export default async function handler(req, res) {
  "type": "service_account",
   "project_id": "kaf-471314",
   "private_key_id": "9dbb061ed99bb218de696857f839b59dd11fd7c0",
+  "private_key": process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   "client_email": "id-22-bot@kaf-471314.iam.gserviceaccount.com",
   "client_id": "118228097079633655651",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
