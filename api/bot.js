@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+
 // 🧠 Простой in-memory кэш для хранения состояния админов
 const adminState = new Map();
 
@@ -10,24 +11,24 @@ export default async function handler(req, res) {
   const { message, callback_query } = req.body;
 
   // 🔑 Настройки — замените на свои
-  const TOKEN = "8391873182:AAHUykid30Fssju6OfnUtwv6uCc9ZFdazh";
-  const ADMIN_CHAT_IDS = [935264202]; // ← Добавьте chat_id админов
-  const SPREADSHEET_ID = "1O-UibvEGDG_JFVF2FLC49YiAjlzIMduFSBZ7hNRQwmcrdo6JufnXi8ys";
+  const TOKEN = "7991590846:AAHp6H7VW_dPhH3tf_zAjTj8aQSCYZcm6iU";
+  const ADMIN_CHAT_IDS = [935264202]; // ← Добавьте chat_id админов через запятую
+  const SPREADSHEET_ID = "1utCG8rmf449THR5g6SHvSK4pp6-nj7UEgSgP4H1_isc";
 
-  // 🧑‍💼 Сервисный аккаунт Google
+  // 🧑‍💼 Сервисный аккаунт Google — замените содержимое на своё
   const SERVICE_ACCOUNT = {
-  "type": "service_account",
-  "project_id": "kaf-471314",
-  "private_key_id": "99c0a4247c816ee5568a2f87cb0fad89220c583c",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDvA+FXKwKxncK0\naLmzGZQUiq+ewWRLENH9EL+4nValg+hNjpnll0g4tMmrYb5OT7ePI6APQ2DF36yD\nPqg3xksFRYPeupOEvX8jhUwy44jhw7tY38f86QYhQ8S802JnNKwt/5JrMwnhWHgo\nNZPUauFYz/YMEW4tTVMvnPQIKBVtiEN6WnyJH9CzgnvsCE2b6RAqWg0Bz9zKizWF\n3worroomd10ed/j0+pbIuT8yanjqZJki5zzBt73c/ANGHwz9Ee6DWcEP5EyXyFGB\ngACBq1FrBeH13R8oktwBMksbswTEr89fxjRlGG8i3tz8RuN11O7uvD+6LANWLoo2\niiPI6mtrAgMBAAECggEAK2ezfO55I0NIkBWyn4VGIILdCMILEhzAXao0fvTHvvAY\n+Dis1wZlnbKrKv3pnvQYHBz2nL76LIUFoaH3z4Upq4/ntkOAtarqE0vKPjWW7pTq\niWW+Pj4dGF5jtHzY0nA80m+mqeQPZ8Z2r6qnKXytZsEBaEikDwMLV8qzgGWzGnw6\nFFVBQVNyc7fMU9Jabmbd1yyWwA3hlb2e2as/b42QyUA/g/pD1xDK8a2y+8GqQnuC\ncjth1EhS0H6JouyJ8u+Ynb6LPZrSVzA85tu87iqU+wbRKFQi2H8tdamO0B7Bo/cj\nZCrwgv+6Ccx9jINmJvEgWypbwpy99tuZWShqqXlC/QKBgQD8Z9LbZhvZ/mV9YoVt\nKUMtaduhr5G/p8X3YyAsGMxBDgIliPTRGgCc0GkmlOqtHv4WpHlodhEkbcMPztS5\ne36+ra8q+WSSTEcfXXCvO8tTFN3wMigxRxFxuo3COyYcoECWu8o/HrQVcNajuKZ2\n9YHyOHzXFMsQ0rdPbDNMcFOxxwKBgQDyaz17oe4ljW7RI1BYNZ42Vqfp1uFsuEVE\nhJeLjir4jkGOLZILYUKHc7DHlqJk9pumxp6yzRKQ8SU5QXKCaLVi71A+u6aLImBF\n5Ue7UZu9TI5kXbYWRgrSP1m5SsaJdjWGJ9fvmQGhQiBULEdei3XWaEJK7kPSPx3f\nhLS8Wn55PQKBgQC/5aeYCp+uMw2yME9E2RQr2MmUucjTr5iBJyn0nL3dz+qt4txO\nhbhlgMYRATMSf/ep+04ar3kE+zZMNHHiuxN3oNEGmSlvWPLR09ayQ4GoHrtFvLx2\nCpQmpTDVtOaa6PNyJj/zkUJU8r8dJmvZEXrET1IKq9JfbfTUO20c9mGLTQKBgQC7\nn1qXrI2oDN3/CejuTJlmDw2ow4H3ZmteC41LGr6RX3DHfOey3RTjxxvEbgbEQ8XW\nf5VmZ6f9/FXGCax52FbC+tvNoejVeMawcjNhfFkgWvc+IPWEKbPIY/WqnoAo9g+Z\nBI9xRqfnSknBPAAE4cVTK6BbZCujtuwFCi3kNdn7NQKBgQC8NXq4OLTbJx5WVitk\n5T/BvTsQ6BEuRnWjPod7yzkpFlxnO74WgVjONDusvgEi1B69oGwB6QS0WipmOHim\nJbjxFE5enpb7lSdK0yAJF6O9QZ+JARkKYYnTJ0EabIiBzf03yHOMXHtRjyFMZyt+\nkNApPNjtnhxd7FvQzmcnbv/Sfg==\n-----END PRIVATE KEY-----\n",
-  "client_email": "kaf-471314@appspot.gserviceaccount.com",
-  "client_id": "102306985385816454633",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kaf-471314%40appspot.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-};
+    "type": "service_account",
+    "project_id": "kaf-471314",
+    "private_key_id": "fee4a054ff0530753a9edf44c260d7263c9ad39a",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCvjndpL3Y4uGCS\nTbRQ7l87Nz32u8nx9yJd2bSomdQTVXmB1oQg9n4dr5Xd22PCHQUBTAw/wTznIpeb\n3+PR+q/QLe/+SWtro3flhCDhqv8Thoaie8Q1Z2G8TD9/FJEQbzgDrGB8EuhHbqL/\nsbAShffmAfTlPP15A6ro5Bc6pNt76BI7xhvnnYOYF7HeXtZ/QUJX71b0Zgn19DEm\n4AvfrGT2vBXXtkFGPIVmuu0HoVb9inmBC+FP9bCrHg5tyakm/d7v8lLv20Lq83jb\ngkjfgJD7LCM+Yxyt6gQCthdgF4HHA4eYMCMaFUlPd1ywi/OuacfyQp9MUObIJGH/\nbKrWkYTxAgMBAAECggEABsQCHbhzuTsAVEUYu9V677GY4oxRS6EdRsIGDokaoWnd\n8Fs5vXo4aSkYGMwsoZmMFMUnM/IM2IDGmF4SFeigC9EoZouyb0wWCd8sI/xKvyg0\nIjkMOk1nGKpU2F882bX6kfgrwf5Zy65zq1BgD2+wqoFk7Gx7vYUe2iG3tDWwJHvQ\nKYLBMEHfdOtEVEcdn9KyoX01mYLMmWrLsrmMc/LPBnWwXZmFIMx0xNfY/9UfKS33\nf26xLpQAysF4Bcn6Un+J92ZqMaTDsA8O+yBBUzeh6P8WxPoyzut1gi3iBVEUqRDm\n2rL29bvUWgLinkwQv7/+oczGMDMn9WsF7JE/s3LlwQKBgQD2O/+ZkdfhlZ/KhotH\niU9wGtwJkrPvlzEAPhA5nry1hhnAg6VfznBUrUp1O1+2LMg3mTjimfboSN27e2RP\nOvCSqvEHEtMRNslg5tiEY/XnOgirgdvM2mZ074s+g1pMHEEFOK8kT9rrGJKTVSHP\nK5OVRE5k4Me5ucxuX6WCiuVjMQKBgQC2hOFa8x/6h4eLdP92g6FVpmWT0O8t6rE2\nrA9zOvYWE4iZgDGfLcjgbKX+sbUIKg/PeCVWUhZwEwNcPUfjlQL+n1cZeDj1V/qt\n2KbOx5PZNXdxEL3jyPiKTafqfBibDhdZHcJxsQE2UHZ1EleByTY8BnswNFlmq7x4\nknAogoxNwQKBgBjODn+f64l0EzbJuvon4PLAIe5s8udt6afGmMfVL9lxeuKj4GL4\nXuSI2Hla09d8R2ciblKVhAP+Yyfh1EcO/vEne0RlJxIS3NKALsuXbkwu0nTEjini\nznN1NifD/7KvHfWysiIMUVdhkFJ7Pv6puyJMUUFkS3pwNyHfTMMLzvPhAoGBAK7E\nuo0+NKbOU+ojk+LF1ByRgr5x2DTdf+dcBkdOdAlblvd1Gw7S5oCPSLuDKlew/wao\ngwgO/lE+w371Zvry2rU5mktXJSM4pV8GD2P9EwNwAPkREOMms2arSVhsj5sZeR3q\nMyBuXzzE+0jK0WQDaZ08j4Tu+5QmaggCIMeJihOBAoGBAOOeh5JLwumVz57naKg6\nK/PeaUVNmFmQ5PvhjLSWBv3q8B9/yW7C3njd7ArJkOjp9WEXn6trQEHdeqDdzhh1\ngP+pX5WUl9VPf/Xu32RFEe/5HmqE3hXKGKgnWUzsz9Bo65Qtm7r1z9dKWnw7VgJQ\nhZskcUXSjPR/kxIJopnFh3cA\n-----END PRIVATE KEY-----\n",
+    "client_email": "telegram-bot-service-account@kaf-471314.iam.gserviceaccount.com",
+    "client_id": "102899225308073479135",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/telegram-bot-service-account%40kaf-471314.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  };
 
   // 📤 Функция отправки сообщения
   const sendText = async (toChatId, msg, replyMarkup = null) => {
@@ -193,7 +194,7 @@ async function sendBroadcast(text, type, serviceAccount, spreadsheetId) {
     if (type !== 'all' && userType !== type) continue;
 
     try {
-      const url = `https://api.telegram.org/bot8391873182:AAHUykid30Fssju6OfnUtwv6uCc9ZFdazh/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
+      const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
       await fetch(url, { method: 'GET' });
       sent++;
     } catch (e) {
