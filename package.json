@@ -2,7 +2,6 @@
   "name": "telegram-bot",
   "version": "1.0.0",
   "main": "api/bot.js",
-  "type": "module",
   "dependencies": {
     "googleapis": "^129.0.0"
   }
