@@ -17,7 +17,8 @@ export default async function handler(req, res) {
 
   // 🧑‍💼 Сервисный аккаунт Google — замените содержимое на своё
   const SERVICE_ACCOUNT = {
- "type": "service_account",
+const SERVICE_ACCOUNT = {
+  "type": "service_account",
   "project_id": "kaf-471314",
   "private_key_id": "9dbb061ed99bb218de696857f839b59dd11fd7c0",
   "private_key": process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -28,7 +29,7 @@ export default async function handler(req, res) {
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-22-bot%40kaf-471314.iam.gserviceaccount.com",
   "universe_domain": "googleapis.com"
-  };
+};
 
   // 📤 Функция отправки сообщения
   const sendText = async (toChatId, msg, replyMarkup = null) => {
