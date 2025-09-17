@@ -17,7 +17,6 @@ export default async function handler(req, res) {
 
   // 🧑‍💼 Сервисный аккаунт Google — замените содержимое на своё
   const SERVICE_ACCOUNT = {
-const SERVICE_ACCOUNT = {
   "type": "service_account",
   "project_id": "kaf-471314",
   "private_key_id": "9dbb061ed99bb218de696857f839b59dd11fd7c0",
