@@ -38,8 +38,8 @@ export default async function handler(req, res) {
     if (text === "/start") {
       const keyboard = {
         inline_keyboard: [
-          [{ text: "🎖️ Военный", callback_ "type_military" }],
-          [{ text: "👔 Гражданский", callback_ "type_civil" }]
+          [{ text: "🎖️ Военный", callback_data: "type_military" }],
+          [{ text: "👔 Гражданский", callback_data: "type_civil" }]
         ]
       };
       await sendText(chatId, "👋 Привет! Выберите ваш тип:", keyboard);
@@ -50,9 +50,9 @@ export default async function handler(req, res) {
     if (ADMIN_CHAT_IDS.includes(chatId) && text === "/menu") {
       const keyboard = {
         inline_keyboard: [
-          [{ text: "📤 Всем", callback_ "send_all" }],
-          [{ text: "🎖️ Военным", callback_ "send_military" }],
-          [{ text: "👔 Гражданским", callback_ "send_civil" }]
+          [{ text: "📤 Всем", callback_data: "send_all" }],
+          [{ text: "🎖️ Военным", callback_data: "send_military" }],
+          [{ text: "👔 Гражданским", callback_data: "send_civil" }]
         ]
       };
       await sendText(chatId, "👇 Выберите тип рассылки:", keyboard);
