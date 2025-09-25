@@ -1,69 +1,40 @@
-import { google } from 'googleapis';
+import { createClient } from '@supabase/supabase-js';
 
-// 🧠 Простой in-memory кэш для хранения состояния админов
+// 🧠 In-memory кэш для состояния админов
 const adminState = new Map();
 
+// 🔑 Настройки
+const TOKEN = "7991590846:AAHp6H7VW_dPhH3tf_zAjTj8aQSCYZcm6iU";
+const ADMIN_CHAT_IDS = [935264202, 1527919229];
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+// 🚀 Главная функция
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   const { message, callback_query } = req.body;
+  if (!message && !callback_query) return res.status(200).json({ ok: true });
 
-  // 🔑 Настройки —  замените на свои 
-  const TOKEN = "7991590846:AAHp6H7VW_dPhH3tf_zAjTj8aQSCYZcm6iU";
-  const ADMIN_CHAT_IDS = [935264202]; // ← Добавьте chat_id админов через запятую
-  const SPREADSHEET_ID = "1utCG8rmf449THR5g6SHvSK4pp6-nj7UEgSgP4H1_isc";
-
-  // 🧑‍💼 Сервисный аккаунт Google — замените содержимое на своё
-  const SERVICE_ACCOUNT = {
-  "type": "service_account",
-  "project_id": "kaf-471314",
-  "private_key_id": "9dbb061ed99bb218de696857f839b59dd11fd7c0",
-  "private_key": process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-  "client_email": "id-22-bot@kaf-471314.iam.gserviceaccount.com",
-  "client_id": "118228097079633655651",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-22-bot%40kaf-471314.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-};
-
-  // 📤 Функция отправки сообщения
-  const sendText = async (toChatId, msg, replyMarkup = null) => {
-    let url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${toChatId}&text=${encodeURIComponent(msg)}`;
-    if (replyMarkup) {
-      url += `&reply_markup=${encodeURIComponent(JSON.stringify(replyMarkup))}`;
-    }
-    await fetch(url, { method: 'GET' });
-  };
-
-  // ✏️ Функция редактирования сообщения
-  const editMessage = async (chatId, messageId, text, replyMarkup = null) => {
-    let url = `https://api.telegram.org/bot${TOKEN}/editMessageText?chat_id=${chatId}&message_id=${messageId}&text=${encodeURIComponent(text)}`;
-    if (replyMarkup) {
-      url += `&reply_markup=${encodeURIComponent(JSON.stringify(replyMarkup))}`;
-    }
-    await fetch(url, { method: 'GET' });
-  };
-
-  // 📥 Обработка текстовых сообщений
+  // 📥 Текстовые сообщения
   if (message && message.text) {
     const chatId = message.chat.id;
     const text = message.text;
 
-    // Если админ вводит текст после выбора кнопки
+    // Админ вводит текст после выбора кнопки
     if (ADMIN_CHAT_IDS.includes(chatId) && adminState.has(chatId)) {
       const { type } = adminState.get(chatId);
-      adminState.delete(chatId); // Сбрасываем состояние
-
-      const result = await sendBroadcast(text, type, SERVICE_ACCOUNT, SPREADSHEET_ID);
-      await sendText(chatId, `✅ Рассылка отправлена!\n📤 Получателей: ${result.sent}\n❌ Ошибок: ${result.failed}`);
+      adminState.delete(chatId);
+      const result = await sendBroadcast(text, type);
+      await sendText(chatId, `✅ Рассылка отправлена!\n📤 Получателей: ${result.sent}`);
       return res.status(200).json({ ok: true });
     }
 
-    // Команда /start — для сотрудников
+    // /start — сотрудники
     if (text === "/start") {
       const keyboard = {
         inline_keyboard: [
@@ -71,17 +42,17 @@ export default async function handler(req, res) {
           [{ text: "👔 Гражданский", callback_ "type_civil" }]
         ]
       };
-      await sendText(chatId, "👋 Привет! Пожалуйста, выберите ваш тип:", keyboard);
+      await sendText(chatId, "👋 Привет! Выберите ваш тип:", keyboard);
       return res.status(200).json({ ok: true });
     }
 
-    // Команда /menu — для админов
+    // /menu — админы
     if (ADMIN_CHAT_IDS.includes(chatId) && text === "/menu") {
       const keyboard = {
         inline_keyboard: [
-          [{ text: "📤 Отправить ВСЕМ", callback_ "send_all" }],
-          [{ text: "🎖️ Только военным", callback_ "send_military" }],
-          [{ text: "👔 Только гражданским", callback_ "send_civil" }]
+          [{ text: "📤 Всем", callback_ "send_all" }],
+          [{ text: "🎖️ Военным", callback_ "send_military" }],
+          [{ text: "👔 Гражданским", callback_ "send_civil" }]
         ]
       };
       await sendText(chatId, "👇 Выберите тип рассылки:", keyboard);
@@ -89,23 +60,21 @@ export default async function handler(req, res) {
     }
   }
 
-  // 🎯 Обработка нажатий кнопок
+  // 🎯 Нажатия кнопок
   if (callback_query) {
     const chatId = callback_query.message.chat.id;
-    const messageId = callback_query.message.message_id;
     const data = callback_query.data;
+    const name = callback_query.from.first_name || "Аноним";
 
-    // 👉 Сотрудник выбирает тип
+    // Сотрудник выбирает тип
     if (data === 'type_military' || data === 'type_civil') {
       const type = data === 'type_military' ? 'military' : 'civil';
-      const name = callback_query.from.first_name || "Аноним";
-      await saveEmployee(chatId, name, type, SERVICE_ACCOUNT, SPREADSHEET_ID);
-      await editMessage(chatId, messageId, `✅ Вы выбрали: ${type === 'military' ? 'Военный' : 'Гражданский'}. Вы подписаны на уведомления.`);
-      await sendText(ADMIN_CHAT_IDS[0], `📥 Новый сотрудник: ${name} (${chatId}) — тип: ${type}`);
+      await saveEmployee(chatId, name, type);
+      await sendText(chatId, `✅ Вы выбрали: ${type === 'military' ? 'Военный' : 'Гражданский'}.`);
       return res.status(200).json({ ok: true });
     }
 
-    // 👉 Админ выбирает тип рассылки
+    // Админ выбирает рассылку
     if (ADMIN_CHAT_IDS.includes(chatId)) {
       if (data === 'send_all' || data === 'send_military' || data === 'send_civil') {
         const typeMap = {
@@ -114,7 +83,7 @@ export default async function handler(req, res) {
           'send_civil': 'гражданским'
         };
         adminState.set(chatId, { type: data.replace('send_', '') });
-        await editMessage(chatId, messageId, `📩 Введите текст рассылки для: ${typeMap[data]}\n(Просто отправьте текст в чат)`);
+        await sendText(chatId, `📩 Введите текст рассылки для: ${typeMap[data]}`);
         return res.status(200).json({ ok: true });
       }
     }
@@ -123,84 +92,32 @@ export default async function handler(req, res) {
   res.status(200).json({ ok: true });
 }
 
-// 💾 Сохранить сотрудника
-async function saveEmployee(chatId, name, type, serviceAccount, spreadsheetId) {
-  const auth = new google.auth.JWT({
-    email: serviceAccount.client_email,
-    key: serviceAccount.private_key,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
-
-  await auth.authorize();
-
-  const sheets = google.sheets({ version: 'v4', auth });
-
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: 'A:A',
-  });
-
-  const values = response.data.values || [];
-
-  for (let i = 0; i < values.length; i++) {
-    if (values[i][0] == chatId) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId,
-        range: `C${i + 1}`,
-        valueInputOption: 'RAW',
-        resource: {
-          values: [[type]]
-        }
-      });
-      return;
-    }
-  }
-
-  await sheets.spreadsheets.values.append({
-    spreadsheetId,
-    range: 'A:C',
-    valueInputOption: 'RAW',
-    resource: {
-      values: [[chatId, name, type]]
-    }
-  });
+// 📤 Отправка сообщения
+async function sendText(chatId, text, replyMarkup = null) {
+  const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
+  if (replyMarkup) url += `&reply_markup=${encodeURIComponent(JSON.stringify(replyMarkup))}`;
+  await fetch(url, { method: 'GET' });
 }
 
-// 📢 Рассылка по типу
-async function sendBroadcast(text, type, serviceAccount, spreadsheetId) {
-  const auth = new google.auth.JWT({
-    email: serviceAccount.client_email,
-    key: serviceAccount.private_key,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
+// 💾 Сохранение сотрудника
+async function saveEmployee(chatId, name, type) {
+  await supabase
+    .from('employees')
+    .upsert({ chat_id: chatId, name, type }, { onConflict: 'chat_id' });
+}
 
-  await auth.authorize();
+// 📢 Рассылка
+async function sendBroadcast(text, type) {
+  const { data } = type === 'all' 
+    ? await supabase.from('employees').select('chat_id')
+    : await supabase.from('employees').select('chat_id').eq('type', type);
 
-  const sheets = google.sheets({ version: 'v4', auth });
-
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: 'A:C',
-  });
-
-  const rows = response.data.values || [];
-  let sent = 0, failed = 0;
-
-  for (let row of rows) {
-    const chatId = row[0];
-    const userType = row[2];
-
-    if (!chatId || chatId === 'chat_id') continue;
-    if (type !== 'all' && userType !== type) continue;
-
+  let sent = 0;
+  for (const { chat_id } of data || []) {
     try {
-      const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
-      await fetch(url, { method: 'GET' });
+      await sendText(chat_id, text);
       sent++;
-    } catch (e) {
-      failed++;
-    }
+    } catch (e) {}
   }
-
-  return { sent, failed };
+  return { sent };
 }
