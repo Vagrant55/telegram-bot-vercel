@@ -11,7 +11,7 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
-// 🚀 Главная  функция
+// 🚀 Главная  функция 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
