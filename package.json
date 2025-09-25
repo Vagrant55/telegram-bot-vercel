@@ -4,6 +4,6 @@
   "main": "api/bot.js",
   "type": "module",
   "dependencies": {
-    "googleapis": "^129.0.0"
+    "@supabase/supabase-js": "^2.43.1"
   }
 }
