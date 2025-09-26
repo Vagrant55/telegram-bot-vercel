@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 🧠 In-memory  кэш для  состояния  админов 
+// 🧠 In-memory кэш для состояния админов
 const adminState = new Map();
 
 // 🔑 Настройки
@@ -11,27 +11,27 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
-// 🚀 Главная  функция 
-export default async function handler(req, res) 
-if (req.url === '/test-supabase') {
-  try {
-    const { data, error } = await supabase.from('employees').select('count').single();
-    console.log("Тест Supabase:", { data, error });
-    return res.status(200).json({ 
-      success: true, 
-      message: 'Supabase работает', 
-      count: data?.count 
-    });
-  } catch (err) {
-    console.error("Ошибка теста Supabase:", err);
-    return res.status(500).json({ 
-      success: false, 
-      error: err.message 
-    });
+// 🚀 Главная функция
+export default async function handler(req, res) {
+  // Тестовый endpoint для проверки подключения к Supabase
+  if (req.url === '/test-supabase') {
+    try {
+      const { data, error } = await supabase.from('employees').select('count').single();
+      console.log("Тест Supabase:", { data, error });
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Supabase работает', 
+        count: data?.count 
+      });
+    } catch (err) {
+      console.error("Ошибка теста Supabase:", err);
+      return res.status(500).json({ 
+        success: false, 
+        error: err.message 
+      });
+    }
   }
-}
 
-{
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -117,6 +117,7 @@ async function sendText(chatId, text, replyMarkup = null) {
   if (replyMarkup) url += `&reply_markup=${encodeURIComponent(JSON.stringify(replyMarkup))}`;
   await fetch(url, { method: 'GET' });
 }
+
 // 💾 Сохранение сотрудника
 async function saveEmployee(chatId, name, type) {
   console.log("Попытка сохранить:", { chatId, name, type });
