@@ -5,7 +5,7 @@ const adminState = new Map();
 
 // 🔑 Настройки — замените на свои
 const TOKEN = "7991590846:AAHp6H7VW_dPhH3tf_zAjTj8aQSCYZcm6iU"; // ← Замените на токен из @BotFather
-const ADMIN_CHAT_IDS = [935264202]; // ← Замените на ваш chat_id
+const ADMIN_CHAT_IDS = [935264202, 1527919229 ]; // ← Замените на ваш chat_id
 
 // 🧑‍💼 Подключение к Supabase
 const SUPABASE_URL = process.env.SUPABASE_URL;
