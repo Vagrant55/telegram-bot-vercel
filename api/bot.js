@@ -109,12 +109,32 @@ async function sendText(chatId, text, replyMarkup = null) {
 
 // 💾 Функция сохранения сотрудника
 async function saveEmployee(chatId, name, type) {
+  // 🔎 Валидация входных данных
+  if (typeof chatId !== 'number') {
+    console.error('❌ chatId не число:', chatId, typeof chatId);
+    return;
+  }
+  if (!name || typeof name !== 'string') {
+    name = 'Аноним'; // или пропустить, но лучше задать значение
+  }
+  if (!['military', 'civil'].includes(type)) {
+    console.error('❌ Неверный тип:', type);
+    return;
+  }
+
+  console.log('💾 Сохраняем:', { chat_id: chatId, name, type });
+
   const { error } = await supabase
     .from('employees')
-    .upsert({ chat_id: chatId, name, type }, { onConflict: 'chat_id' });
+    .upsert(
+      { chat_id: chatId, name, type },
+      { onConflict: 'chat_id' }
+    );
 
   if (error) {
-    console.error('Ошибка Supabase:', error);
+    console.error('❌ Supabase ошибка:', error);
+  } else {
+    console.log('✅ Успешно сохранено');
   }
 }
 
