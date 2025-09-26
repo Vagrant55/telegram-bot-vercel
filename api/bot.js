@@ -12,7 +12,26 @@ const supabase = createClient(
 );
 
 // 🚀 Главная  функция 
-export default async function handler(req, res) {
+export default async function handler(req, res) 
+if (req.url === '/test-supabase') {
+  try {
+    const { data, error } = await supabase.from('employees').select('count').single();
+    console.log("Тест Supabase:", { data, error });
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Supabase работает', 
+      count: data?.count 
+    });
+  } catch (err) {
+    console.error("Ошибка теста Supabase:", err);
+    return res.status(500).json({ 
+      success: false, 
+      error: err.message 
+    });
+  }
+}
+
+{
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
