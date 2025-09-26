@@ -98,26 +98,57 @@ async function sendText(chatId, text, replyMarkup = null) {
   if (replyMarkup) url += `&reply_markup=${encodeURIComponent(JSON.stringify(replyMarkup))}`;
   await fetch(url, { method: 'GET' });
 }
-
 // 💾 Сохранение сотрудника
 async function saveEmployee(chatId, name, type) {
-  await supabase
-    .from('employees')
-    .upsert({ chat_id: chatId, name, type }, { onConflict: 'chat_id' });
+  console.log("Попытка сохранить:", { chatId, name, type });
+  
+  try {
+    const { data, error } = await supabase
+      .from('employees')
+      .upsert({ chat_id: chatId, name, type }, { onConflict: 'chat_id' });
+    
+    console.log("Результат сохранения:", { data, error });
+    
+    if (error) {
+      console.error("Ошибка Supabase при сохранении:", error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Ошибка при сохранении (catch):", err);
+    return false;
+  }
 }
 
 // 📢 Рассылка
 async function sendBroadcast(text, type) {
-  const { data } = type === 'all' 
-    ? await supabase.from('employees').select('chat_id')
-    : await supabase.from('employees').select('chat_id').eq('type', type);
+  console.log("Попытка рассылки:", { text, type });
+  
+  try {
+    const { data, error } = type === 'all' 
+      ? await supabase.from('employees').select('chat_id')
+      : await supabase.from('employees').select('chat_id').eq('type', type);
 
-  let sent = 0;
-  for (const { chat_id } of data || []) {
-    try {
-      await sendText(chat_id, text);
-      sent++;
-    } catch (e) {}
+    console.log("Данные для рассылки:", { data, error });
+    
+    if (error) {
+      console.error("Ошибка Supabase при выборке:", error);
+      return { sent: 0 };
+    }
+
+    let sent = 0;
+    for (const { chat_id } of data || []) {
+      try {
+        await sendText(chat_id, text);
+        sent++;
+      } catch (e) {
+        console.error("Ошибка при отправке сообщения:", e);
+      }
+    }
+    console.log("Рассылка завершена:", { sent });
+    return { sent };
+  } catch (err) {
+    console.error("Ошибка при рассылке (catch):", err);
+    return { sent: 0 };
   }
-  return { sent };
 }
