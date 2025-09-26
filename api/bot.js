@@ -84,27 +84,4 @@ export default async function handler(req, res) {
     message: 'Bot is ready',
     timestamp: new Date().toISOString()
   });
-}
-```
-
-## Как использовать тестовый код:
-
-1. **Замените содержимое `api/bot.js`** на этот тестовый код.
-
-2. **Обновите `vercel.json`** (если нужно):
-```json
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/test.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/test.js"
-    }
-  ]
-}
+} 
