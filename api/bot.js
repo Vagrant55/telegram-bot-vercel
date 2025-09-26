@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 🧠 In-memory  кэш для  состояния  админов
+// 🧠 In-memory  кэш для  состояния  админов 
 const adminState = new Map();
 
 // 🔑 Настройки
