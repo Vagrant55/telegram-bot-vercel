@@ -128,13 +128,30 @@ export default async function handler(req, res) {
   return res.status(200).json({ ok: true });
 }
 
-// 📤 Функция отправки сообщения
+// 📤 Функция отправки сообщения (исправленная)
 async function sendText(chatId, text, replyMarkup = null) {
-  let url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
-  if (replyMarkup) {
-    url += `&reply_markup=${encodeURIComponent(JSON.stringify(replyMarkup))}`;
+  const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+  const body = {
+    chat_id: chatId,
+    text,
+    reply_markup: replyMarkup,
+    parse_mode: "HTML" // опционально, можно убрать
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Ошибка Telegram API:', errorText);
+    }
+  } catch (err) {
+    console.error('💥 Ошибка сети в sendText:', err.message);
   }
-  await fetch(url, { method: 'GET' });
 }
 
 // 💾 Функция сохранения сотрудника
