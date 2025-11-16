@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
     // Обработка текстовых сообщений
     if (message && message.text) {
-      const chatId = message.chat.id;
+      const chatId = Numaber(message.chat.id);
       const text = message.text;
 
       if (ADMIN_CHAT_IDS.includes(chatId) && adminState.has(chatId)) {
