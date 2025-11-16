@@ -129,13 +129,13 @@ export default async function handler(req, res) {
 }
 
 // 📤 Функция отправки сообщения (исправленная)
+// 📤 Функция отправки сообщения (исправленная)
 async function sendText(chatId, text, replyMarkup = null) {
   const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
   const body = {
     chat_id: chatId,
     text,
-    reply_markup: replyMarkup,
-    parse_mode: "HTML" // опционально, можно убрать
+    reply_markup: replyMarkup
   };
 
   try {
@@ -150,10 +150,9 @@ async function sendText(chatId, text, replyMarkup = null) {
       console.error('❌ Ошибка Telegram API:', errorText);
     }
   } catch (err) {
-    console.error('💥 Необработанная ошибка в handler:', err);
-    return res.status(200).json({ ok: true });
+    console.error('💥 Ошибка сети в sendText:', err.message);
+    // НЕ используем res здесь — это не обработчик запроса!
   }
-}
 
 // 💾 Функция сохранения сотрудника
 async function saveEmployee(chatId, name, type) {
