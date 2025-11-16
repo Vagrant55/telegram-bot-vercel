@@ -125,11 +125,7 @@ export default async function handler(req, res) {
 async function sendText(chatId, text, replyMarkup = null) {
   console.log('📤 Отправка сообщения:', { chatId, text });
   const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
-  const body = {
-    chat_id: chatId,
-    text,
-    reply_markup: replyMarkup
-  };
+  const body = { chat_id: chatId, text, reply_markup: replyMarkup };
 
   try {
     const response = await fetch(url, {
@@ -138,15 +134,19 @@ async function sendText(chatId, text, replyMarkup = null) {
       body: JSON.stringify(body)
     });
 
+    const responseText = await response.text();
+    console.log('📨 Ответ Telegram:', {
+      status: response.status,
+      body: responseText
+    });
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Ошибка Telegram API:', errorText);
+      console.error('❌ Ошибка Telegram API:', responseText);
     }
   } catch (err) {
-    console.error('💥 Ошибка сети в sendText:', err.message);
+    console.error('💥 Ошибка сети:', err.message);
   }
 }
-
 // 💾 Функция сохранения сотрудника
 async function saveEmployee(chatId, name, type) {
   if (typeof chatId !== 'number') {
