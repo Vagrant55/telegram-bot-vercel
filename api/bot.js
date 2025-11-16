@@ -150,7 +150,8 @@ async function sendText(chatId, text, replyMarkup = null) {
       console.error('❌ Ошибка Telegram API:', errorText);
     }
   } catch (err) {
-    console.error('💥 Ошибка сети в sendText:', err.message);
+    console.error('💥 Необработанная ошибка в handler:', err);
+    return res.status(200).json({ ok: true });
   }
 }
 
