@@ -175,24 +175,30 @@ async function saveEmployee(chatId, name, type) {
 
 // 📢 Функция рассылки по типу
 async function sendBroadcast(text, type) {
+  console.log('🚀 Начинаем рассылку для типа:', type);
+
   const { data, error } = type === 'all'
     ? await supabase.from('employees').select('chat_id')
     : await supabase.from('employees').select('chat_id').eq('type', type);
 
   if (error) {
-    console.error('Ошибка Supabase:', error);
+    console.error('❌ Ошибка Supabase:', error);
     return { sent: 0 };
   }
+
+  console.log('📦 Найдено получателей:', data?.length || 0);
 
   let sent = 0;
   for (const { chat_id } of data || []) {
     try {
+      console.log('📩 Отправляем сообщение пользователю:', chat_id);
       await sendText(chat_id, text);
       sent++;
     } catch (e) {
-      console.error(`Ошибка при отправке: ${e.message}`);
+      console.error(`Ошибка при отправке для ${chat_id}:`, e.message);
     }
   }
 
+  console.log('✅ Рассылка завершена. Отправлено:', sent);
   return { sent };
 }
