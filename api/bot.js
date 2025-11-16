@@ -130,7 +130,7 @@ export default async function handler(req, res) {
         const keyboard = {
           inline_keyboard: [
             [{ text: "🎖️ Военный", callback_data: "type_military" }],
-            [{ text: "👔 Гражданский", callback_ "type_civil" }]
+            [{ text: "👔 Гражданский", callback_data: "type_civil" }]
           ]
         };
         await sendText(chatId, "👋 Привет! Пожалуйста, выберите ваш тип:", keyboard);
@@ -142,8 +142,8 @@ export default async function handler(req, res) {
         const keyboard = {
           inline_keyboard: [
             [{ text: "📤 Отправить ВСЕМ", callback_data: "send_all" }],
-            [{ text: "🎖️ Только военным", callback_ "send_military" }],
-            [{ text: "👔 Только гражданским", callback_ "send_civil" }]
+            [{ text: "🎖️ Только военным", callback_data: "send_military" }],
+            [{ text: "👔 Только гражданским", callback_data: "send_civil" }]
           ]
         };
         await sendText(chatId, "👇 Выберите тип рассылки:", keyboard);
