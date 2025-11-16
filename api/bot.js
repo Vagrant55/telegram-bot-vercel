@@ -59,10 +59,14 @@ async function getAdminSession(chatId) {
 
 // 📥 Сохранить сессию админа
 async function setAdminSession(chatId, type) {
-  const { error } = await supabase
-    .from('admin_sessions')
-    .upsert({ chat_id: chatId, awaiting_broadcast_type: type }, { onConflict: 'chat_id' });
-  if (error) console.error('❌ Ошибка сохранения сессии:', error);
+  try {
+    const { error } = await supabase
+      .from('admin_sessions')
+      .upsert({ chat_id: chatId, awaiting_broadcast_type: type }, { onConflict: 'chat_id' });
+    if (error) console.error('❌ Ошибка сохранения сессии:', error);
+  } catch (err) {
+    console.error('💥 Ошибка в setAdminSession:', err.message);
+  }
 }
 
 // 🧹 Удалить сессию админа
@@ -160,6 +164,13 @@ export default async function handler(req, res) {
        data: callback_query.data,
        chatId: callback_query.message?.chat?.id
      });
+
+      // Защита от NaN
+  const chatId = Number(callback_query.message.chat.id);
+  if (isNaN(chatId)) {
+    console.error('❌ chatId не число:', callback_query.message.chat.id);
+    return res.status(200).json({ ok: true });
+  }
       if (!callback_query.message?.chat) {
         return res.status(200).json({ ok: true });
       }
@@ -170,6 +181,8 @@ export default async function handler(req, res) {
 
       console.log('🖱️ Callback:', { chatId, data });
 
+
+      
       // Админ выбирает тип рассылки
       if (ADMIN_CHAT_IDS.includes(chatId)) {
         if (data === 'send_all' || data === 'send_military' || data === 'send_civil') {
