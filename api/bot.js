@@ -123,6 +123,7 @@ export default async function handler(req, res) {
 
 // 📤 Функция отправки сообщения
 async function sendText(chatId, text, replyMarkup = null) {
+  console.log('📤 Отправка сообщения:', { chatId, text });
   const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
   const body = {
     chat_id: chatId,
