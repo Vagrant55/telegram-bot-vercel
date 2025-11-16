@@ -74,7 +74,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      const chatId = Number(callback_query.message.chat.id);
+      const chatId = (callback_query.message.chat.id);
       const data = callback_query.data;
       const name = callback_query.from.first_name || callback_query.from.username || "Аноним";
 
