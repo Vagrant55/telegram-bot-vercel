@@ -209,8 +209,4 @@ async function sendBroadcast(text, type) {
 
   return { sent };
 }
-  } catch (err) {
-    console.error('💥 Необработанная ошибка:', err);
-    res.status(200).json({ ok: true }); // ← критически важно!
-  }
-}
+
