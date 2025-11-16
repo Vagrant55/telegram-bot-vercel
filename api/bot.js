@@ -67,35 +67,65 @@ export default async function handler(req, res) {
   }
 
   // Обработка нажатий кнопок
-  if (callback_query) {
-    const chatId = callback_query.message.chat.id;
-    const data = callback_query.data;
-    const name = callback_query.from.first_name || "Аноним";
+ if (callback_query) {
+  // 🔎 Логируем всё, что пришло
+  console.log('📥 Получен callback_query:', {
+     callback_query.data,
+    chatId: callback_query.message?.chat?.id,
+    fromId: callback_query.from?.id
+  });
 
-    // 👉 Сотрудник выбирает тип
-    if (data === 'type_military' || data === 'type_civil') {
-      const type = data === 'type_military' ? 'military' : 'civil';
-      await saveEmployee(chatId, name, type); // Сохраняем в таблицу
-      await sendText(chatId, `✅ Вы выбрали: ${type === 'military' ? 'Военный' : 'Гражданский'}.`);
+  // 🛡️ Защита от некорректных данных
+  if (!callback_query.message || !callback_query.message.chat) {
+    console.warn('⚠️ Пропущен callback_query: отсутствует message или chat');
+    return res.status(200).json({ ok: true });
+  }
+
+  // 🔢 Приводим chatId к числу — критически важно!
+  const chatId = Number(callback_query.message.chat.id);
+  const data = callback_query.data;
+  const name = callback_query.from.first_name || callback_query.from.username || "Аноним";
+
+  // 🧪 Логируем для отладки
+  console.log('👤 chatId:', chatId, '(тип:', typeof chatId, ')');
+  console.log('🛡️ ADMIN_CHAT_IDS:', ADMIN_CHAT_IDS);
+  console.log('🔍 Данные кнопки:', data);
+
+  // 👮‍♂️ Проверяем, админ ли пользователь
+  if (ADMIN_CHAT_IDS.includes(chatId)) {
+    // 👉 Админ нажал кнопку выбора получателей рассылки
+    if (data === 'send_all' || data === 'send_military' || data === 'send_civil') {
+      const typeMap = {
+        'send_all': 'всем',
+        'send_military': 'военным',
+        'send_civil': 'гражданским'
+      };
+      const type = data.replace('send_', '');
+      adminState.set(chatId, { type });
+      console.log('✅ Админ ожидает ввод текста для:', type);
+      await sendText(chatId, `📩 Введите текст рассылки для: ${typeMap[data]}\n(Просто отправьте текст в чат)`);
       return res.status(200).json({ ok: true });
     }
 
-    // 👉 Админ выбирает тип рассылки
-    if (ADMIN_CHAT_IDS.includes(chatId)) {
-      if (data === 'send_all' || data === 'send_military' || data === 'send_civil') {
-        const typeMap = {
-          'send_all': 'всем',
-          'send_military': 'военным',
-          'send_civil': 'гражданским'
-        };
-        adminState.set(chatId, { type: data.replace('send_', '') });
-        await sendText(chatId, `📩 Введите текст рассылки для: ${typeMap[data]}\n(Просто отправьте текст в чат)`);
-        return res.status(200).json({ ok: true });
-      }
+    // 👉 Админ нажал "Отмена" (если добавите)
+    if (data === 'cancel') {
+      adminState.delete(chatId);
+      await sendText(chatId, '✅ Действие отменено.');
+      return res.status(200).json({ ok: true });
     }
   }
 
-  res.status(200).json({ ok: true });
+  // 👤 Обычный пользователь выбирает тип (военный/гражданский)
+  if (data === 'type_military' || data === 'type_civil') {
+    const type = data === 'type_military' ? 'military' : 'civil';
+    await saveEmployee(chatId, name, type);
+    await sendText(chatId, `✅ Вы выбрали: ${type === 'military' ? 'Военный' : 'Гражданский'}.`);
+    return res.status(200).json({ ok: true });
+  }
+
+  // 🚫 Незнакомая кнопка — просто молча завершаем
+  console.log('❓ Неизвестная callback_', data);
+  return res.status(200).json({ ok: true });
 }
 
 // 📤 Функция отправки сообщения
