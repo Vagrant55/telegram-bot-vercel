@@ -156,8 +156,10 @@ export default async function handler(req, res) {
 
     // 🖱️ Обработка кнопок
     if (callback_query) {
-      const chat = callback_query.message.chat;
-      console.log('🖱️ Chat info:', { id: chat.id, type: chat.type });
+     console.log('📥 Получен callback_query:', {
+       data: callback_query.data,
+       chatId: callback_query.message?.chat?.id
+     });
       if (!callback_query.message?.chat) {
         return res.status(200).json({ ok: true });
       }
