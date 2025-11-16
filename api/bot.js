@@ -11,6 +11,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // 📤 Отправка сообщения в Telegram
 async function sendText(chatId, text, replyMarkup = null) {
+  console.log('📤 Попытка отправки:', { chatId, text });
   const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
   const body = { chat_id: chatId, text, reply_markup: replyMarkup };
 
