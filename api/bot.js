@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Простой6in-nemory кэш для хранения состояния админов 
+const adminState = new Map();
+
 // 🔑 Настройки
 const TOKEN = "7991590846:AAHp6H7VW_dPhH3tf_zAjTj8aQSCYZcm6iU";
 const ADMIN_CHAT_IDS = [935264202, 1527919229]; // числа, не строки!
