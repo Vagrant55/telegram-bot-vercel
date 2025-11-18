@@ -168,12 +168,6 @@ export default async function handler(req, res) {
        chatId: callback_query.message?.chat?.id
      });
 
-      // Защита от NaN
-  const chatId = Number(callback_query.message.chat.id);
-  if (isNaN(chatId)) {
-    console.error('❌ chatId не число:', callback_query.message.chat.id);
-    return res.status(200).json({ ok: true });
-  }
       if (!callback_query.message?.chat) {
         return res.status(200).json({ ok: true });
       }
