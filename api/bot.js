@@ -163,6 +163,7 @@ export default async function handler(req, res) {
 
     // 🖱️ Обработка кнопок
     if (callback_query) {
+     const chatId = number(callback_query.message?.chat?.id);
      console.log('📥 Получен callback_query:', {
        data: callback_query.data,
        chatId: callback_query.message?.chat?.id
