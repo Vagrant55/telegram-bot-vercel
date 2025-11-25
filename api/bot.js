@@ -1,20 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Простой6in-nemory кэш для хранения состояния админов 
-const adminState = new Map();
-
-// 🔑 Настройки
-const TOKEN = "7991590846:AAHx6F49KAKkYWhXVthOPggoYpy4vX-knAs";
+// 🔐 Чувствительные данные — только из переменных окружения
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN; // ← новый токен из BotFather
 const ADMIN_CHAT_IDS = [935264202, 1527919229]; // числа, не строки!
+
+if (!TOKEN) {
+  console.error('❌ Ошибка: TELEGRAM_BOT_TOKEN не задан в переменных окружения!');
+}
 
 // 🧑‍💼 Подключение к Supabase
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('❌ Ошибка: SUPABASE_URL или SUPABASE_ANON_KEY не заданы!');
+}
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // 📤 Отправка сообщения в Telegram
 async function sendText(chatId, text, replyMarkup = null) {
-  console.log('📤 Попытка отправки:', { chatId, text });
   const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
   const body = { chat_id: chatId, text, reply_markup: replyMarkup };
 
@@ -22,14 +27,27 @@ async function sendText(chatId, text, replyMarkup = null) {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
-    const result = await response.text();
     if (!response.ok) {
-      console.error('❌ Telegram API ошибка:', result);
+      const errorText = await response.text();
+      console.error('❌ Telegram API ошибка:', errorText);
     }
   } catch (err) {
     console.error('💥 Ошибка сети в sendText:', err.message);
+  }
+}
+
+// ✅ Ответ на нажатие кнопки (убирает "часики")
+async function answerCallback(callbackQueryId) {
+  try {
+    await fetch(`https://api.telegram.org/bot${TOKEN}/answerCallbackQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ callback_query_id: callbackQueryId }),
+    });
+  } catch (err) {
+    console.warn('⚠️ Не удалось ответить на callback:', err.message);
   }
 }
 
@@ -104,7 +122,7 @@ async function sendBroadcast(text, type) {
   return { sent };
 }
 
-// 🚀 Обработчик запросов
+// 🚀 Основной обработчик
 export default async function handler(req, res) {
   try {
     if (req.method !== 'POST') {
@@ -113,6 +131,7 @@ export default async function handler(req, res) {
 
     const { message, callback_query } = req.body;
 
+    // Игнорируем пустые запросы
     if (!message && !callback_query) {
       return res.status(200).json({ ok: true });
     }
@@ -120,79 +139,77 @@ export default async function handler(req, res) {
     // 📨 Обработка текстовых сообщений
     if (message && message.text) {
       const chatId = Number(message.chat.id);
-      const text = message.text;
-
-      console.log('📨 Получен текст:', { chatId, text });
+      const text = message.text.trim();
 
       // Админ вводит текст рассылки
-      const sessionType = await getAdminSession(chatId);
-      if (ADMIN_CHAT_IDS.includes(chatId) && sessionType) {
-        await clearAdminSession(chatId);
-        const result = await sendBroadcast(text, sessionType);
-        await sendText(chatId, `✅ Рассылка отправлена!\n📤 Получателей: ${result.sent}`);
+      if (ADMIN_CHAT_IDS.includes(chatId)) {
+        const sessionType = await getAdminSession(chatId);
+        if (sessionType) {
+          await clearAdminSession(chatId);
+          const result = await sendBroadcast(text, sessionType);
+          await sendText(chatId, `✅ Рассылка отправлена!\n📤 Получателей: ${result.sent}`);
+          return res.status(200).json({ ok: true });
+        }
+      }
+
+      // Команды
+      if (text === '/start') {
+        const keyboard = {
+          inline_keyboard: [
+            [{ text: '🎖️ Военный', callback_data: 'type_military' }],
+            [{ text: '👔 Гражданский', callback_data: 'type_civil' }],
+          ],
+        };
+        await sendText(chatId, '👋 Привет! Пожалуйста, выберите ваш тип:', keyboard);
         return res.status(200).json({ ok: true });
       }
 
-      // Команда /start
-      if (text === "/start") {
+      if (ADMIN_CHAT_IDS.includes(chatId) && text === '/menu') {
         const keyboard = {
           inline_keyboard: [
-            [{ text: "🎖️ Военный", callback_data: "type_military" }],
-            [{ text: "👔 Гражданский", callback_data: "type_civil" }]
-          ]
+            [{ text: '📤 Отправить ВСЕМ', callback_data: 'send_all' }],
+            [{ text: '🎖️ Только военным', callback_data: 'send_military' }],
+            [{ text: '👔 Только гражданским', callback_data: 'send_civil' }],
+          ],
         };
-        await sendText(chatId, "👋 Привет! Пожалуйста, выберите ваш тип:", keyboard);
-        return res.status(200).json({ ok: true });
-      }
-
-      // Команда /menu
-      if (ADMIN_CHAT_IDS.includes(chatId) && text === "/menu") {
-        const keyboard = {
-          inline_keyboard: [
-            [{ text: "📤 Отправить ВСЕМ", callback_data: "send_all" }],
-            [{ text: "🎖️ Только военным", callback_data: "send_military" }],
-            [{ text: "👔 Только гражданским", callback_data: "send_civil" }]
-          ]
-        };
-        await sendText(chatId, "👇 Выберите тип рассылки:", keyboard);
+        await sendText(chatId, '👇 Выберите тип рассылки:', keyboard);
         return res.status(200).json({ ok: true });
       }
 
       return res.status(200).json({ ok: true });
     }
 
-    // 🖱️ Обработка кнопок
+    // 🖱️ Обработка нажатий на кнопки
     if (callback_query) {
-     const chatId = number(callback_query.message?.chat?.id);
-     console.log('📥 Получен callback_query:', {
-       data: callback_query.data,
-       chatId: callback_query.message?.chat?.id
-     });
+      const chatId = Number(callback_query.message?.chat?.id);
+      const data = callback_query.data;
+      const callbackId = callback_query.id;
+      const name = callback_query.from.first_name || callback_query.from.username || 'Аноним';
 
-      if (!callback_query.message?.chat) {
+      // Убираем "часики" у пользователя
+      await answerCallback(callbackId);
+
+      // Защита от некорректных данных
+      if (!chatId || !callback_query.message?.chat) {
         return res.status(200).json({ ok: true });
       }
-      
-      const data = callback_query.data;
-      const name = callback_query.from.first_name || callback_query.from.username || "Аноним";
 
-      console.log('🖱️ Callback:', { chatId, data });
-
-
-      
       // Админ выбирает тип рассылки
       if (ADMIN_CHAT_IDS.includes(chatId)) {
-        if (data === 'send_all' || data === 'send_military' || data === 'send_civil') {
+        if (['send_all', 'send_military', 'send_civil'].includes(data)) {
           const type = data.replace('send_', '');
           const typeMap = { all: 'всем', military: 'военным', civil: 'гражданским' };
           await setAdminSession(chatId, type);
-          await sendText(chatId, `📩 Введите текст рассылки для: ${typeMap[type]}\n(Просто отправьте текст в чат)`);
+          await sendText(
+            chatId,
+            `📩 Введите текст рассылки для: ${typeMap[type]}\n(Просто отправьте текст в чат)`
+          );
           return res.status(200).json({ ok: true });
         }
       }
 
       // Пользователь выбирает тип профиля
-      if (data === 'type_military' || data === 'type_civil') {
+      if (['type_military', 'type_civil'].includes(data)) {
         const type = data === 'type_military' ? 'military' : 'civil';
         await saveEmployee(chatId, name, type);
         await sendText(chatId, `✅ Вы выбрали: ${type === 'military' ? 'Военный' : 'Гражданский'}.`);
