@@ -41,13 +41,18 @@ async function sendText(chatId, text, replyMarkup = null) {
 // ✅ Ответ на callback_query (обязательно!)
 async function answerCallback(callbackQueryId) {
   try {
-    await fetch(`https://api.telegram.org/bot${TOKEN}/answerCallbackQuery`, {
+    const url = `https://api.telegram.org/bot${TOKEN}/answerCallbackQuery`;
+    if (!TOKEN) {
+      console.error('❌ TOKEN не определён в answerCallback!');
+      return;
+    }
+    await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ callback_query_id: callbackQueryId }),
     });
-  } catch (e) {
-    console.warn('⚠️ Не удалось ответить на callback:', e.message);
+  } catch (err) {
+    console.error('💥 Ошибка в answerCallback:', err.message);
   }
 }
 
