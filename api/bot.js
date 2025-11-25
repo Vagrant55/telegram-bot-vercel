@@ -1,127 +1,173 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 🔐 Загрузка токена из переменных окружения
+// 🔐 Переменные окружения
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const ADMIN_CHAT_IDS = [935264202, 1527919229]; // ваши ID
-
-if (!TOKEN) {
-  console.error('❌ КРИТИКА: TELEGRAM_BOT_TOKEN не задан в Environment Variables!');
-}
+const ADMIN_CHAT_IDS = [935264202, 1527919229]; // ваши Telegram ID
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
+// 🛡️ Защита от отсутствующих переменных
+if (!TOKEN) {
+  console.warn('⚠️ TELEGRAM_BOT_TOKEN не задан — отправка сообщений невозможна');
+}
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('❌ SUPABASE_URL или SUPABASE_ANON_KEY не заданы!');
+  console.warn('⚠️ Supabase не настроен — сохранение данных отключено');
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// 🧑‍💼 Инициализация Supabase (только если есть ключи)
+const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
-// 📤 Отправка сообщения
+// 📤 Отправка сообщения в Telegram
 async function sendText(chatId, text, replyMarkup = null) {
-  if (typeof chatId !== 'number' || isNaN(chatId) || chatId <= 0) {
-    console.warn('⚠️ Попытка отправки в недопустимый chat_id:', chatId);
+  if (!TOKEN) {
+    console.error('❌ Невозможно отправить сообщение: токен не задан');
     return;
   }
+  if (typeof chatId !== 'number' || isNaN(chatId) || chatId === 0) {
+    console.warn('⚠️ Пропуск отправки: некорректный chat_id', chatId);
+    return;
+  }
+
   try {
-    const response = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+    const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text, reply_markup: replyMarkup }),
     });
-    const result = await response.text();
+
     if (!response.ok) {
-      console.error('❌ Telegram API send error:', result);
+      const errorText = await response.text();
+      console.error('❌ Telegram API ошибка:', errorText);
     }
-  } catch (e) {
-    console.error('💥 Ошибка сети в sendText:', e.message);
+  } catch (err) {
+    console.error('💥 Ошибка отправки сообщения:', err.message);
   }
 }
 
-// ✅ Обязательный ответ на callback_query
+// ✅ Ответ на нажатие кнопки (обязательно!)
 async function answerCallback(callbackQueryId) {
-  if (!callbackQueryId) return;
+  if (!TOKEN || !callbackQueryId) return;
   try {
     await fetch(`https://api.telegram.org/bot${TOKEN}/answerCallbackQuery`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ callback_query_id: callbackQueryId }),
     });
-  } catch (e) {
-    console.warn('⚠️ Не удалось ответить на callback:', e.message);
+  } catch (err) {
+    console.warn('⚠️ Не удалось ответить на callback:', err.message);
   }
 }
 
-// 💾 Сохранение сотрудника
+// 💾 Сохранение сотрудника (с защитой)
 async function saveEmployee(chatId, name, type) {
+  if (!supabase) {
+    console.warn('ℹ️ Supabase не доступен — пропуск сохранения');
+    return;
+  }
   if (typeof chatId !== 'number' || isNaN(chatId) || chatId <= 0) return;
   if (!name || typeof name !== 'string') name = 'Аноним';
   if (!['military', 'civil'].includes(type)) return;
 
-  const { error } = await supabase
-    .from('employees')
-    .upsert({ chat_id: chatId, name, type }, { onConflict: 'chat_id' });
+  try {
+    const { error } = await supabase
+      .from('employees')
+      .upsert({ chat_id: chatId, name, type }, { onConflict: 'chat_id' });
 
-  if (error) console.error('❌ Supabase employees error:', error);
+    if (error) console.error('❌ Supabase employees error:', error);
+  } catch (err) {
+    console.error('💥 Ошибка в saveEmployee:', err.message);
+  }
 }
 
-// 📥 Сессия админа
+// 📥 Работа с сессией админа
 async function getAdminSession(chatId) {
-  const { data, error } = await supabase
-    .from('admin_sessions')
-    .select('awaiting_broadcast_type')
-    .eq('chat_id', chatId)
-    .single();
-  if (error && error.code !== 'PGRST116') {
-    console.error('❌ Ошибка загрузки сессии:', error);
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from('admin_sessions')
+      .select('awaiting_broadcast_type')
+      .eq('chat_id', chatId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('❌ Ошибка загрузки сессии:', error);
+    }
+    return data?.awaiting_broadcast_type || null;
+  } catch (err) {
+    console.error('💥 Ошибка в getAdminSession:', err.message);
+    return null;
   }
-  return data?.awaiting_broadcast_type || null;
 }
 
 async function setAdminSession(chatId, type) {
+  if (!supabase) return;
   try {
     const { error } = await supabase
       .from('admin_sessions')
       .upsert({ chat_id: chatId, awaiting_broadcast_type: type }, { onConflict: 'chat_id' });
     if (error) console.error('❌ Ошибка сохранения сессии:', error);
   } catch (err) {
-    console.error('💥 setAdminSession error:', err.message);
+    console.error('💥 Ошибка в setAdminSession:', err.message);
   }
 }
 
 async function clearAdminSession(chatId) {
-  const { error } = await supabase
-    .from('admin_sessions')
-    .delete()
-    .eq('chat_id', chatId);
-  if (error) console.error('❌ Ошибка удаления сессии:', error);
+  if (!supabase) return;
+  try {
+    const { error } = await supabase
+      .from('admin_sessions')
+      .delete()
+      .eq('chat_id', chatId);
+    if (error) console.error('❌ Ошибка удаления сессии:', error);
+  } catch (err) {
+    console.error('💥 Ошибка в clearAdminSession:', err.message);
+  }
 }
 
 // 📢 Рассылка
 async function sendBroadcast(text, type) {
-  const { data, error } = type === 'all'
-    ? await supabase.from('employees').select('chat_id')
-    : await supabase.from('employees').select('chat_id').eq('type', type);
-
-  if (error) {
-    console.error('❌ Supabase select error:', error);
+  if (!supabase) {
+    console.warn('ℹ️ Supabase недоступен — рассылка невозможна');
     return { sent: 0 };
   }
 
-  let sent = 0;
-  for (const { chat_id } of data || []) {
-    try {
-      await sendText(chat_id, text);
-      sent++;
-    } catch (e) {
-      console.error(`Ошибка отправки ${chat_id}:`, e.message);
+  try {
+    let query = supabase.from('employees').select('chat_id');
+    if (type !== 'all') {
+      query = query.eq('type', type);
     }
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('❌ Supabase select error:', error);
+      return { sent: 0 };
+    }
+
+    let sent = 0;
+    for (const { chat_id } of data || []) {
+      try {
+        await sendText(chat_id, text);
+        sent++;
+      } catch (e) {
+        console.error(`Ошибка отправки ${chat_id}:`, e.message);
+      }
+    }
+    return { sent };
+  } catch (err) {
+    console.error('💥 Ошибка в sendBroadcast:', err.message);
+    return { sent: 0 };
   }
-  return { sent };
 }
 
 // 🚀 Основной обработчик
 export default async function handler(req, res) {
+  // Telegram требует 200 даже при ошибках
+  const safeEnd = () => res.status(200).json({ ok: true });
+
   try {
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method Not Allowed' });
@@ -130,7 +176,7 @@ export default async function handler(req, res) {
     const { message, callback_query } = req.body;
 
     if (!message && !callback_query) {
-      return res.status(200).json({ ok: true });
+      return safeEnd();
     }
 
     // 📨 Обработка текстовых сообщений
@@ -138,16 +184,18 @@ export default async function handler(req, res) {
       const chatId = Number(message.chat.id);
       const text = message.text.trim();
 
+      // Админ вводит текст рассылки
       if (ADMIN_CHAT_IDS.includes(chatId)) {
         const sessionType = await getAdminSession(chatId);
         if (sessionType) {
           await clearAdminSession(chatId);
           const result = await sendBroadcast(text, sessionType);
           await sendText(chatId, `✅ Рассылка отправлена!\n📤 Получателей: ${result.sent}`);
-          return res.status(200).json({ ok: true });
+          return safeEnd();
         }
       }
 
+      // Команды
       if (text === '/start') {
         const keyboard = {
           inline_keyboard: [
@@ -156,7 +204,7 @@ export default async function handler(req, res) {
           ],
         };
         await sendText(chatId, '👋 Привет! Пожалуйста, выберите ваш тип:', keyboard);
-        return res.status(200).json({ ok: true });
+        return safeEnd();
       }
 
       if (ADMIN_CHAT_IDS.includes(chatId) && text === '/menu') {
@@ -168,35 +216,33 @@ export default async function handler(req, res) {
           ],
         };
         await sendText(chatId, '👇 Выберите тип рассылки:', keyboard);
-        return res.status(200).json({ ok: true });
+        return safeEnd();
       }
 
-      return res.status(200).json({ ok: true });
+      return safeEnd();
     }
 
     // 🖱️ Обработка кнопок
     if (callback_query) {
       const callbackId = callback_query.id;
       const chatId = Number(callback_query.message?.chat?.id);
-      const userId = callback_query.from.id; // ID пользователя, который нажал
+      const userId = callback_query.from.id;
       const data = callback_query.data;
       const name = callback_query.from.first_name || callback_query.from.username || 'Аноним';
-
-      // Логирование для диагностики
-      console.log('🔍 Callback:', {
-        chatId,
-        userId,
-        data,
-        isValidChatId: !isNaN(chatId) && chatId > 0,
-        messageExists: !!callback_query.message,
-      });
 
       // ✅ Обязательно отвечаем на callback
       await answerCallback(callbackId);
 
-      // Если сообщение удалено — не падаем, но работаем через userId
-      if (!callback_query.message?.chat) {
-        console.log('ℹ️ Сообщение удалено — используем userId для ответа');
+      // === Кнопки выбора типа ===
+      if (['type_military', 'type_civil'].includes(data)) {
+        const type = data === 'type_military' ? 'military' : 'civil';
+        const label = type === 'military' ? 'Военный' : 'Гражданский';
+
+        // Сохраняем и отправляем — используем chatId, если можно, иначе userId
+        const targetId = (!isNaN(chatId) && chatId > 0) ? chatId : userId;
+        await saveEmployee(targetId, name, type);
+        await sendText(targetId, `✅ Вы выбрали: ${label}.`);
+        return safeEnd();
       }
 
       // === Админские кнопки рассылки ===
@@ -206,33 +252,16 @@ export default async function handler(req, res) {
           const typeMap = { all: 'всем', military: 'военным', civil: 'гражданским' };
           await setAdminSession(userId, type);
           await sendText(userId, `📩 Введите текст рассылки для: ${typeMap[type]}\n(Просто отправьте текст в чат)`);
-          return res.status(200).json({ ok: true });
+          return safeEnd();
         }
       }
 
-      // === Кнопки выбора типа пользователя ===
-      if (['type_military', 'type_civil'].includes(data)) {
-        const type = data === 'type_military' ? 'military' : 'civil';
-        const label = type === 'military' ? 'Военный' : 'Гражданский';
-
-        // Сохраняем по chatId, если возможно
-        if (!isNaN(chatId) && chatId > 0) {
-          await saveEmployee(chatId, name, type);
-          await sendText(chatId, `✅ Вы выбрали: ${label}.`);
-        } else {
-          // Иначе — сохраняем по userId и отправляем туда
-          await saveEmployee(userId, name, type);
-          await sendText(userId, `✅ Вы выбрали: ${label}.`);
-        }
-        return res.status(200).json({ ok: true });
-      }
-
-      return res.status(200).json({ ok: true });
+      return safeEnd();
     }
 
-    return res.status(200).json({ ok: true });
+    return safeEnd();
   } catch (err) {
-    console.error('💥 Глобальная ошибка:', err);
-    return res.status(200).json({ ok: true });
+    console.error('💥 Критическая ошибка в обработчике:', err);
+    return safeEnd(); // Всегда 200 для Telegram
   }
 }
