@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
 // 🔐 Настройки из переменных окружения
+if (!process.env.TELEGRAM_BOT_TOKEN) {
+  console.error('❌ КРИТИЧЕСКАЯ ОШИБКА: TELEGRAM_BOT_TOKEN не задан!');
+}
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_CHAT_IDS = [935264202, 1527919229]; // числа
 
